@@ -97,15 +97,15 @@ Download the README.md file then fill your command for run all node when TA test
 
 Below is example
 
-1. **Clone the repository** (replace `StudentID` with your own ID):
+1. **Clone the repository**:
    ```bash
-   git clone -b LAB2 https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
+   git clone -b https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
     ```
 2. **Run all nodes**:
    ```bash
-   ros2 run LAB2 eater.py
-   ros2 run LAB2 killer.py
-   ros2 run LAB2 turtlesim_pose.py
+   ros2 run lab2 eater.py
+   ros2 run lab2 killer.py
+   ros2 run lab2 turtlesim_pose.py
    ```
 
 
