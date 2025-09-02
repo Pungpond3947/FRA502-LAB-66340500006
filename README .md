@@ -128,11 +128,11 @@ Below is example
 
 1. **Clone the repository** (replace `StudentID` with your own ID):
    ```bash
-   git clone -b LAB3 https://github.com/<your-org>/FRA502-LAB-StudentID.git
+   git clone -b LAB3 https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
     ```
 2. **Run all nodes** (replace `StudentID` with your own ID):
    ```bash
-   ros2 run FRA502-LAB-StudentID <node_name>
+   ros2 launch lab3 lab3_bringup.launch.py
    ```
 
 
