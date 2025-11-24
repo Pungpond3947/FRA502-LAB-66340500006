@@ -50,11 +50,11 @@ Visualizes the reachable workspace of the robot.
 **Install dependencies**
 
 ```bash
-    pip3 install numpy==1.26.4
-    pip3 install roboticstoolbox-python
-    sudo apt install ros-humble-desktop-full
-    sudo apt install ros-dev-tools
-    sudo apt install ros-humble-robot-state-publisher
+pip3 install numpy==1.26.4
+pip3 install roboticstoolbox-python
+sudo apt install ros-humble-desktop-full
+sudo apt install ros-dev-tools
+sudo apt install ros-humble-robot-state-publisher
 ```
 
 Go somewhere like your home directory and clone this package.
@@ -63,16 +63,12 @@ Go somewhere like your home directory and clone this package.
 git clone https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
 cd FRA502-LAB-66340500006/
 ```
-then build (inside FUN4)
+then build (inside FRA502-LAB-66340500006)
 
 ```bash
 colcon build && . install/setup.bash
 ```
 Set up your environment by sourcing the following file.
-
-```bash
-echo "source ~/FUN4/install/setup.bash" >> ~/.bashrc
-```
 
 ## How to Run
 
