@@ -60,8 +60,8 @@ Visualizes the reachable workspace of the robot.
 Go somewhere like your home directory and clone this package.
 
 ```bash
-    git clone https://github.com/beamkeerati/LAB4
-    cd LAB4/
+    git clone https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
+    cd FRA502-LAB-66340500006/
 ```
 then build (inside FUN4)
 
