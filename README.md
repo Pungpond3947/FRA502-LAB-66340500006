@@ -50,11 +50,11 @@ Visualizes the reachable workspace of the robot.
 **Install dependencies**
 
 ```bash
-    pip3 install numpy==1.26.4
-    pip3 install roboticstoolbox-python
-    sudo apt install ros-humble-desktop-full
-    sudo apt install ros-dev-tools
-    sudo apt install ros-humble-robot-state-publisher
+pip3 install numpy==1.26.4
+pip3 install roboticstoolbox-python
+sudo apt install ros-humble-desktop-full
+sudo apt install ros-dev-tools
+sudo apt install ros-humble-robot-state-publisher
 ```
 
 Go somewhere like your home directory and clone this package.
