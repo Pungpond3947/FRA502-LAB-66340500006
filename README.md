@@ -2,7 +2,7 @@
 
 This project implements a control system for a 3-DOF (Revolute-Revolute-Revolute) Robot Arm using ROS 2. It features Jacobian-based teleoperation, Inverse Kinematics (IK) trajectory planning, workspace visualization, and an automated task scheduler.
 
-## 📦 Dependencies
+## Dependencies
 
 Ensure you have the following installed in your ROS 2 environment:
 
@@ -15,7 +15,7 @@ Ensure you have the following installed in your ROS 2 environment:
 > * `SetMode.srv` (Request: `string mode`, `geometry_msgs/Pose target_pose` | Response: `bool success`, `string message`, `float64[] configuration`)
 > * `Random.srv` (Request: `string mode` | Response: `geometry_msgs/Point position`, `bool inprogress`)
 
-## 📂 File Descriptions
+## File Descriptions
 
 ### 1. `controller.py` (Main Controller)
 The core node that handles the robot's kinematics and control logic.
@@ -60,8 +60,8 @@ Visualizes the reachable workspace of the robot.
 Go somewhere like your home directory and clone this package.
 
 ```bash
-    git clone https://github.com/beamkeerati/LAB4
-    cd LAB4/
+    git clone https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
+    cd FRA502-LAB-66340500006/
 ```
 then build (inside FUN4)
 
@@ -74,7 +74,7 @@ Set up your environment by sourcing the following file.
     echo "source ~/FUN4/install/setup.bash" >> ~/.bashrc
 ```
 
-## 🚀 How to Run
+## How to Run
 
 **Open 3 Terminals in order and leave them running so that all three can run simultaneously.**
 
@@ -87,7 +87,7 @@ Set up your environment by sourcing the following file.
     ros2 run example_description teleop.py 
 ```
 
-## 🎮 Teleop Controls
+## Teleop Controls
 
 When running `teleop.py`, use the following keys:
 
@@ -121,7 +121,7 @@ ros2 service call /set_mode lab4_interfaces/srv/SetMode "{mode: 'AUTO'}"
 ros2 service call /set_mode lab4_interfaces/srv/SetMode "{mode: 'IPK', target_pose: {position: {x: 0.2, y: 0.0, z: 0.2}}}"
 ```
 
-## 🛠 Technical Details
+## Technical Details
 
 * **Singularity Handling:** The controller checks `det(J)`. If `abs(det_J) < 0.0005`, the robot stops and resets to a safe "home" configuration to prevent undefined behavior.
 
