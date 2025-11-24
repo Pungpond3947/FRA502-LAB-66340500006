@@ -128,7 +128,3 @@ ros2 service call /set_mode lab4_interfaces/srv/SetMode "{mode: 'IPK', target_po
 * **Frame Handling:** In Teleop, `twist.angular.z` is repurposed as a flag:
   * `0.0` for World Frame
   * `1.0` for End-Effector Frame
-
-## 🏗 Architecture Overview
-
-![System Architecture](LAB4_System_Architecture.png)
