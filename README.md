@@ -60,7 +60,7 @@ sudo apt install ros-humble-robot-state-publisher
 Go somewhere like your home directory and clone this package.
 
 ```bash
-git clone https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
+git clone --branch LAB4 https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
 cd FRA502-LAB-66340500006/
 ```
 then build (inside FRA502-LAB-66340500006)
