@@ -60,18 +60,18 @@ Visualizes the reachable workspace of the robot.
 Go somewhere like your home directory and clone this package.
 
 ```bash
-    git clone https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
-    cd FRA502-LAB-66340500006/
+git clone https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
+cd FRA502-LAB-66340500006/
 ```
 then build (inside FUN4)
 
 ```bash
-    colcon build && . install/setup.bash
+colcon build && . install/setup.bash
 ```
 Set up your environment by sourcing the following file.
 
 ```bash
-    echo "source ~/FUN4/install/setup.bash" >> ~/.bashrc
+echo "source ~/FUN4/install/setup.bash" >> ~/.bashrc
 ```
 
 ## How to Run
@@ -80,11 +80,11 @@ Set up your environment by sourcing the following file.
 
 **Terminal 1**
 ```bash
-    ros2 launch example_description simple_display.launch.py
+ros2 launch example_description simple_display.launch.py
 ```
 **Terminal 2**
 ```bash
-    ros2 run example_description teleop.py 
+ros2 run example_description teleop.py 
 ```
 
 ## Teleop Controls
