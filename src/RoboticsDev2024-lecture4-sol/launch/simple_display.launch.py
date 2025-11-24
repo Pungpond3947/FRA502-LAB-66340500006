@@ -27,7 +27,7 @@ def generate_launch_description():
     
     pkg = get_package_share_directory('example_description')
 
-    rviz_path = os.path.join(pkg,'config','display_test.rviz')
+    rviz_path = os.path.join(pkg,'config','display_lab4.rviz')
     rviz = Node(
         package='rviz2',
         executable='rviz2',
