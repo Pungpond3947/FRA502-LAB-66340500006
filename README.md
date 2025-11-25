@@ -76,10 +76,12 @@ Set up your environment by sourcing the following file.
 
 **Terminal 1**
 ```bash
+. install/setup.bash
 ros2 launch example_description simple_display.launch.py
 ```
 **Terminal 2**
 ```bash
+. install/setup.bash
 ros2 run example_description teleop.py 
 ```
 
@@ -104,16 +106,19 @@ You can control the system modes manually using ROS 2 service calls:
 
 ### 1. Enable Teleoperation Mode:
 ```bash
+. install/setup.bash
 ros2 service call /set_mode lab4_interfaces/srv/SetMode "{mode: 'TELEOP'}"
 ```
 
 ### 2. Enable Auto Loop Mode:
 ```bash
+. install/setup.bash
 ros2 service call /set_mode lab4_interfaces/srv/SetMode "{mode: 'AUTO'}"
 ```
 
 ### 3. Send Specific Target (IPK):
 ```bash
+. install/setup.bash
 ros2 service call /set_mode lab4_interfaces/srv/SetMode "{mode: 'IPK', target_pose: {position: {x: 0.2, y: 0.0, z: 0.2}}}"
 ```
 
