@@ -123,7 +123,7 @@ class RobotControllerNode(Node):
         raw_input = self.teleop_vel[0:3]
 
         if self.use_ee_frame == True:
-            v_cmd_local = np.array([raw_input[2], raw_input[1], raw_input[0]]) 
+            v_cmd_local = np.array([raw_input[2], raw_input[1], raw_input[0] * -1]) 
             
             T_ee = self.robot.fkine(self.q)
             R_ee = T_ee.R
