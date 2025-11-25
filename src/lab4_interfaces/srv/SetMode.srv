@@ -1,6 +1,0 @@
-string mode
-geometry_msgs/Pose target_pose
----
-bool success
-float64[] configuration
-string message
