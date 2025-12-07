@@ -73,52 +73,20 @@
 
 ### System Overview
 
-โปรเจกต์นี้มี 2 โหมดการทำงาน:
+โปรเจกต์นี้มีขั้นตอนการทดสอบ 2 โหมด:
 
 | Mode | Description | Data Source | Use Case |
 |------|-------------|-------------|----------|
 | **🖥️ Simulation** | ทดสอบใน Gazebo | Gazebo Physics Engine | Development & Testing |
 | **🚁 Real Hardware** | บินจริงด้วย ESP32 | ESP32 + MicroROS + Sensors | Real Flight |
 
-### System Components Overview
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                      THRUST VECTORING DRONE SYSTEM                  │
-├─────────────────────────────┬───────────────────────────────────────┤
-│      🖥️ SIMULATION MODE     │      🚁 REAL HARDWARE MODE            │
-│         (Gazebo)            │      (ESP32 + MicroROS)               │
-├─────────────────────────────┼───────────────────────────────────────┤
-│                             │                                       │
-│  ┌───────────────────────┐  │     ┌───────────────────────┐        │
-│  │   GAZEBO SIMULATION   │  │     │   ESP32 + MicroROS    │        │
-│  │                       │  │     │                       │        │
-│  │  • Physics Engine     │  │     │  • IMU Sensor         │        │
-│  │  • Drone Model        │  │     │  • TOF Sensor         │        │
-│  │  • Environment        │  │     │  • PID Controller     │        │
-│  │                       │  │     │  • Servo Control      │        │
-│  │  Publishers:          │  │     │                       │        │
-│  │  • /odom              │  │     │  Publishers:          │        │
-│  │  • /tf                │  │     │  • /drone/pose        │        │
-│  └───────────┬───────────┘  │     │  • /drone/imu         │        │
-│              │              │     │  • /drone/status      │        │
-│              ▼              │     └───────────┬───────────┘        │
-│  ┌───────────────────────┐  │                 │                    │
-│  │    PC (ROS2 Nodes)    │  │            UDP  │ Wi-Fi              │
-│  │                       │  │                 ▼                    │
-│  │  • drone_pose_sim     │  │     ┌───────────────────────┐        │
-│  │  • fin_sim            │  │     │    PC (ROS2 Agent)    │        │
-│  │  • teleop_sim         │  │     │                       │        │
-│  └───────────┬───────────┘  │     │  • MicroROS Agent     │        │
-│              │              │     │  • RVIZ2              │        │
-│              ▼              │     │  • Teleop             │        │
-│  ┌───────────────────────┐  │     └───────────────────────┘        │
-│  │       RVIZ2           │  │                                       │
-│  └───────────────────────┘  │                                       │
-│                             │                                       │
-└─────────────────────────────┴───────────────────────────────────────┘
-```
-
+### System Overview
+![Alt text](overview.png)
+### System Architecture
+![Alt text](architecture.png)
+### System Diagram
+![Alt text](diagram.png)
 ---
 
 ## 📊 General Information
@@ -340,7 +308,7 @@ $$Q_{pos} = \text{diag}\left( \frac{1}{0.5^2}, \frac{1}{0.5^2}, \frac{1}{1^2}, \
 ## 🔧 Hardware Design
 
 ### Thrust Vane Mechanism
-
+![GIF demo](vector_drone.gif)
 ```
 ┌──────────────────────────────────────┐
 │      THRUST VANE FORCE               │
@@ -501,44 +469,6 @@ $$Q_{pos} = \text{diag}\left( \frac{1}{0.5^2}, \frac{1}{0.5^2}, \frac{1}{1^2}, \
 | `/tf` | tf2_msgs/TFMessage | drone_pose_sim, fin_sim, **Gazebo** | RVIZ2 |
 | `/drone/velocity_setpoint` | geometry_msgs/Vector3 | teleop_sim | **Drone** (setpoint) |
 | `/robot_description` | std_msgs/String | robot_state_publisher | RVIZ2 |
-
-#### Running Simulation
-
-```bash
-git clone --branch Project https://github.com/PPHUSIN/FRA502-LAB-6645.git
-cd FRA502-LAB-6645/
-```
-
-```bash
-colcon build && . install/setup.bash
-```
-
-```bash
-# Terminal 1: Launch Gazebo simulation
-. install/setup.bash
-ros2 launch drone_gazebo simulation_launch.py
-
-# Terminal 2: Launch RVIZ2
-. install/setup.bash
-ros2 launch drone drone.launch.py
-
-# Terminal 3: Select Mode (simulation)
-. install/setup.bash
-ros2 topic pub /drone/control_mode std_msgs/msg/String "data: 'POSITION'" --once
-ros2 topic pub /drone/control_mode std_msgs/msg/String "data: 'VELOCITY'" --once 
-
-# Terminal 4: Setpoint
-ros2 run thrust_vectoring_drone fin_sim.py
-
-# Terminal 5: Start teleop (simulation)
-ros2 run thrust_vectoring_drone teleop_sim.py
-
-# Terminal 6: Monitor topics
-ros2 topic echo /odom
-ros2 topic echo /tf
-```
-
----
 
 ### 🚁 Real Hardware Mode (ESP32 + MicroROS)
 
@@ -721,32 +651,6 @@ dt = 0.01s (100 Hz)  # Update rate for pose calculation
 | `/cmd_vel` | geometry_msgs/Twist | teleop | **Drone** (setpoint), drone_pose |
 | `/drone/setpoint` | geometry_msgs/Point | PC | **ESP32** |
 
-#### Running Real Hardware
-
-```bash
-# Terminal 1: Start MicroROS Agent
-ros2 run micro_ros_agent micro_ros_agent udp4 --port 8888
-
-# Terminal 2: Launch RVIZ2 (Real Hardware config)
-ros2 launch thrust_vectoring_drone rviz_real_launch.py
-
-# Terminal 3: Start drone pose node (real hardware)
-ros2 run thrust_vectoring_drone drone_pose.py
-
-# Terminal 4: Start fin angle node
-ros2 run thrust_vectoring_drone fin_angle.py
-
-# Terminal 5: Start teleop (real hardware)
-ros2 run thrust_vectoring_drone teleop.py
-
-# Terminal 6: Monitor drone status
-ros2 topic echo /drone/pose
-ros2 topic echo /drone/angle
-ros2 topic echo /fin_angle
-```
-
----
-
 ### 📊 Mode Comparison
 
 #### Python Files Comparison
@@ -796,55 +700,406 @@ ros2 topic echo /fin_angle
 │                         │ To: robot_state_publisher             │
 └─────────────────────────┴───────────────────────────────────────┘
 ```
+# ESP32-S3 Software 
 
----
+## ภาพรวม
+นี่คือเฟิร์มแวร์ควบคุมการบินสำหรับโดรนแบบ thrust-vectoring ที่ใช้ ESP32-S3 ระบบผสานการทำงานของ IMU sensor fusion, GPS positioning, เซนเซอร์วัดระยะ time-of-flight และการสื่อสารผ่าน ROS2 เพื่อควบคุมการบินอัตโนมัติ
 
-## 🎯 Expected Results
+## ฮาร์ดแวร์ที่ต้องใช้
 
-### Performance Targets
+### ไมโครคอนโทรลเลอร์
+- **ESP32-S3-N16R8** (Flash 16MB, PSRAM 8MB)
+- ตัวประมวลผล Dual-core ที่รัน FreeRTOS
 
-1. **การควบคุมท่าทาง (Attitude Control)**
-   - สามารถควบคุมโดรนให้ควบคุมองศาของตัวเองได้
-   - **Target Error:** ≤ ±10 degrees (Roll, Pitch, Yaw)
+### เซนเซอร์
+- **MPU9250/MPU6500** - IMU 9 แกน (I2C: 0x68)
+- **VL53L1X** - เซนเซอร์วัดระยะแบบ Time-of-Flight (I2C: 0x29)
+- **GPS Module** - รองรับ NEO-6M/7M/8M (UART: 9600 baud)
+- **SH1106** - จอ OLED 128x64 (I2C: 0x3C)
 
-2. **การควบคุมความสูง (Altitude Control)**  
-   - ตัวโดรนสามารถรักษาตำแหน่งความสูงที่กำหนดให้ได้
-   - **Target Error:** ≤ ±5 cm
+### Actuators
+- เซอร์โวมอเตอร์ 4 ตัว สำหรับครีบควบคุมทิศทาง
+- มอเตอร์ brushless 1 ตัว พร้อม ESC สำหรับแรงขับหลัก
 
-3. **การทรงตัว (Hovering Capability)**
-   - โดรนสามารถลอยตัวได้ด้วยการควบคุมแบบ Thrust Vectoring
-   - เสถียรภาพในการลอยตัวโดยไม่มีการเซาะด้วยตนเอง
+### การกำหนด Pin
+```cpp
+// I2C Bus
+#define I2C_SDA 8
+#define I2C_SCL 9
 
-4. **ประสิทธิภาพการสื่อสาร (Communication Performance)**
-   - การสื่อสาร ROS2 ↔ MicroROS มีความเสถียรและหน่วงต่ำ
-   - Latency < 50ms สำหรับ critical commands
+// GPS UART
+#define GPS_RX_PIN 17
+#define GPS_TX_PIN 18
 
-5. **ความทนทานต่อสิ่งรบกวน (Disturbance Rejection)**
-   - PID สามารถรักษาสมดุลของโดรนได้ภายใต้ disturbance ขนาดเล็ก
-   - การตอบสนองต่อลมเบา ๆ หรือการเปลี่ยนแปลงโหลด
+// Servo/ESC PWM Pins
+PIN_1 = 1   // ครีบด้านหน้า (Front)
+PIN_2 = 15  // ครีบด้านขวา (Right)
+PIN_3 = 2   // ครีบด้านซ้าย (Left)
+PIN_4 = 16  // ครีบด้านหลัง (Back)
+PIN_5 = 39  // มอเตอร์ขับหลัก (Thruster ESC)
 
-6. **การแสดงผลแบบเรียลไทม์ (Real-time Visualization)**
-   - แสดงทิศทางแรงขับและท่าทางของโดรนใน Rviz ได้อย่างถูกต้อง
-   - การมอนิเตอร์สถานะแบบเรียลไทม์
+// Status LED
+#define RGB_LED_PIN 48  // LED WS2812 ในบอร์ด
+```
 
-### Success Criteria
+## สถาปัตยกรรมซอฟต์แวร์
 
-✅ **Phase 1: System Integration**
-- MicroROS communication established
-- Basic sensor data acquisition
-- Servo control functional
+### การกระจายงานแบบ Dual-Core
 
-✅ **Phase 2: Control Implementation**  
-- PID controllers tuned and stable
-- Thrust vectoring mechanism working
-- Real-time performance achieved
+#### **Core 0** - การควบคุมแบบ Real-time (Priority: 3, 100Hz)
+- อ่านข้อมูลและผสาน IMU
+- ประมาณค่าสถานะด้วย Kalman filter
+- คำนวณการควบคุม
+- ส่งสัญญาณไปยังเซอร์โวและมอเตอร์
 
-✅ **Phase 3: Flight Testing**
-- Successful hover for 30+ seconds  
-- Attitude control within error bounds
-- Safe landing and recovery
+#### **Core 1** - การสื่อสารและ UI (Priority: 1-2)
+- micro-ROS publisher (ส่งข้อมูล GPS/IMU)
+- ประมวลผลข้อมูล GPS @ 10Hz
+- อัปเดตจอ OLED @ 2Hz
+- จัดการการเชื่อมต่อ WiFi
 
----
+### โมดูลหลัก
+
+| โมดูล | ไฟล์ | คำอธิบาย |
+|--------|------|----------|
+| **IMU Handler** | `imu.cpp/h` | อ่านข้อมูล MPU9250, แปลงพิกัด, คำนวณมุม |
+| **Actuator Control** | `Actuator.cpp/h` | ควบคุมเซอร์โว/ESC พร้อมคำสั่ง Serial |
+| **Kalman Filter** | `kalman.cpp/h` | ประมาณค่าและทำนายสถานะ |
+| **LQR Controller** | `lqr_hover.cpp/h` | เมทริกซ์ค่า Gain สำหรับควบคุมแบบ optimal |
+| **GPS Handler** | `gps_handler.cpp/h` | แปลงและจัดการข้อมูล GPS |
+| **ToF Sensor** | `Tof.cpp/h` | วัดความสูงด้วย VL53L1X |
+| **micro-ROS** | `microros_handler.cpp/h` | ติดต่อสื่อสารกับ ROS2 |
+| **WiFi Manager** | `wifi_manager.cpp/h` | จัดการการเชื่อมต่อ WiFi |
+| **OLED Display** | `oled_display.cpp/h` | แสดงสถานะแบบหลายหน้า |
+| **LED Status** | `led_status.cpp/h` | แสดงสถานะด้วย LED RGB |
+
+## ฟีเจอร์หลัก
+
+### 1. การจัดการพิกัด IMU
+
+ระบบรองรับ**หลายแนวการติดตั้ง IMU**:
+
+```cpp
+typedef enum {
+    ROTATION_0,           // แกน X ชี้หน้า (มาตรฐาน PCB)
+    ROTATION_90_CW,       // แกน Y ชี้หน้า
+    ROTATION_90_CCW,      // แกน -Y ชี้หน้า
+    ROTATION_180,         // แกน -X ชี้หน้า
+    ROTATION_UPSIDE_DOWN, // กลับหัวกลับหาง
+    ROTATION_CUSTOM_1-6   // การติดตั้งแบบขอบ
+} IMU_ROTATION;
+```
+
+**ฟังก์ชัน Auto-calibration**:
+```cpp
+imu.testAllRotationsComplete();  // ทดสอบทั้ง 11 แบบ
+imu.setRotation(ROTATION_CUSTOM_3);  // ใช้แบบที่เหมาะสมที่สุด
+imu.zeroOrientation();  // ตั้งค่าศูนย์ที่ท่าปัจจุบัน
+```
+
+### 2. ระบบควบคุม Actuator
+
+**คำสั่งผ่าน Serial**:
+```
+center              → รีเซ็ตเซอร์โวทั้งหมดกลับจุดกลาง
+1 <-10~10>         → ออฟเซ็ตครีบหน้า
+2 <-10~10>         → ออฟเซ็ตครีบขวา
+3 <-10~10>         → ออฟเซ็ตครีบซ้าย
+4 <-10~10>         → ออฟเซ็ตครีบหลัง
+5 <0~100>          → กำลังมอเตอร์ %
+all <offset>       → ตั้งค่าครีบทั้งหมดพร้อมกัน
+set <1> <2> <3> <4> → ตั้งค่าครีบแต่ละตัว
+stop               → หยุดฉุกเฉินมอเตอร์
+status             → แสดงตำแหน่งปัจจุบัน
+```
+
+**การใช้งานในโค้ด**:
+```cpp
+ROVController rov;
+rov.begin();           // เริ่มต้นเซอร์โวและ ESC
+rov.setServo(1, 5);    // ครีบหน้า +5°
+rov.setThruster(50);   // ใช้กำลัง 50%
+rov.moveToCenter();    // กลับจุดกลาง
+rov.stop();            // หยุดฉุกเฉิน
+```
+
+### 3. การประมาณค่าสถานะ (Kalman Filter)
+
+**State Vector 12 ตัว**:
+```
+x = [roll, pitch, yaw, wx, wy, wz, x, y, z, vx, vy, vz]
+```
+
+**Input Vector 5 ตัว**:
+```
+u = [alpha1, alpha2, alpha3, alpha4, motor_rpm]
+```
+
+**การใช้งาน**:
+```cpp
+DroneModel Tewadon;
+DroneParams p;
+// ... ตั้งค่าพารามิเตอร์ ...
+Tewadon.setParams(p);
+
+// ขั้นตอนทำนาย
+Tewadon.computeContinuousModel(hover_thrust, hover_rpm);
+Tewadon.discretize(0.01);  // dt = 10ms
+Tewadon.predictState(state_est, control_input, state_pred);
+
+// ขั้นตอนอัปเดต
+Tewadon.updateStateWithMeasurements(state_pred, measurement, state_est);
+```
+
+### 4. การสื่อสารด้วย micro-ROS
+
+**การตั้งค่า**:
+```cpp
+MicroROSConfig ros_config = {
+    .agent_ip = "172.20.10.2",
+    .agent_port = 8888,
+    .node_name = "esp32_node",
+    .topic_name = "esp32_s3_Drone",
+    .domain_id = 42,
+    .timer_timeout_ms = 10
+};
+```
+
+**ประเภทข้อความที่ Publish**: `sensor_msgs/NavSatFix`
+```cpp
+Pungapond.latitude = getGPSData().latitude;
+Pungapond.longitude = getGPSData().longitude;
+Pungapond.altitude = getGPSData().altitude;
+```
+
+### 5. ตัวบอกสถานะด้วย LED
+
+| สี | สถานะ |
+|-----|--------|
+| 🔴 แดง | WiFi ไม่เชื่อมต่อ |
+| 🟡 เหลือง | กำลังเชื่อมต่อ WiFi |
+| 🟢 เขียว | WiFi เชื่อมต่อแล้ว, ROS ยังไม่เชื่อมต่อ |
+| 🔵 น้ำเงิน | กำลังเชื่อมต่อ ROS Agent |
+| 🟣 ม่วง | เชื่อมต่อครบและกำลังส่งข้อมูล |
+| 🟠 ส้ม | กำลังเชื่อมต่อใหม่ |
+
+```cpp
+initLED();
+updateStatusLED(wifi_connected, agent_connected, publishing);
+```
+
+### 6. จอแสดงผลแบบหลายหน้า
+
+**สามหน้าจอ** (สลับอัตโนมัติทุก 5 วินาที):
+
+**หน้า 0 - ข้อมูล GPS**:
+```
+=== GPS DATA ===
+SAT: 8 LOCKED
+Lat: 13.651234
+Lon: 100.494321
+Alt: 45.2m
+Spd: 0.0km/h
+```
+
+**หน้า 1 - สถานะ WiFi**:
+```
+=== WiFi INFO ===
+Status: CONNECTED
+SSID: iPhone
+ROS Agent: OK
+```
+
+**หน้า 2 - ข้อมูลตำแหน่ง**:
+```
+=== POSITION ===
+GPS: 8 LOCK
+```
+
+## การ Build และ Flash
+
+### PlatformIO (แนะนำ)
+```bash
+# ติดตั้ง dependencies
+pio lib install
+
+# Build
+pio run
+
+# Upload
+pio run --target upload
+
+# ดู Serial Monitor
+pio device monitor
+```
+
+### Arduino IDE
+1. ติดตั้ง ESP32 board support (v2.0.8+)
+2. ติดตั้งไลบรารีที่ต้องใช้:
+   - `micro_ros_arduino`
+   - `ESP32Servo`
+   - `Adafruit_SH110X`
+   - `Adafruit_NeoPixel`
+   - `Adafruit_VL53L1X`
+   - `TinyGPSPlus`
+
+3. เลือกบอร์ด **ESP32S3 Dev Module**:
+   - Flash Size: 16MB
+   - PSRAM: OPI PSRAM
+   - Upload Speed: 921600
+
+4. Compile และ upload `main.cpp`
+
+## ขั้นตอนการเริ่มระบบ
+
+1. ✅ เริ่มต้น I2C Bus (SDA=8, SCL=9)
+2. ✅ สอบเทียบ IMU - ตรวจหาแนวการติดตั้งอัตโนมัติ
+3. ✅ Arming เซอร์โว/ESC - สอบเทียบ ESC 3 วินาที
+4. ✅ เชื่อมต่อ WiFi - เชื่อมต่อกับ Access Point
+5. ✅ ค้นหา micro-ROS Agent - ลองจนกว่าจะเชื่อมต่อได้
+6. ✅ สร้าง FreeRTOS Tasks:
+   - Core 0: วงควบคุม IMU @ 100Hz
+   - Core 1: ROS Publisher, GPS, Display
+7. 🚁 พร้อมบิน
+
+## ไฟล์การตั้งค่า
+
+### ตั้งค่า WiFi & ROS (`main.cpp`)
+```cpp
+char WIFI_SSID[] = "ชื่อ WiFi ของคุณ";
+char WIFI_PASSWORD[] = "รหัสผ่าน";
+
+MicroROSConfig ros_config = {
+    .agent_ip = "192.168.1.100",  // IP ของคอมพิวเตอร์
+    .agent_port = 8888,
+    .node_name = "esp32_node",
+    .topic_name = "esp32_s3_Drone",
+    .domain_id = 42
+};
+```
+
+### ตั้งค่าแนว IMU
+```cpp
+// ใน setup():
+imu.setRotation(ROTATION_CUSTOM_0);  // เปลี่ยนตามการติดตั้ง
+imu.zeroOrientation();  // ตั้งศูนย์บนพื้นราบ
+```
+
+### ตำแหน่งกลางเซอร์โว
+```cpp
+// ปรับถ้าเซอร์โวไม่อยู่กึ่งกลาง:
+rov.setCenterPositions(70, 71, 64, 73);
+```
+
+## การแก้ปัญหา
+
+### ตรวจไม่พบ IMU
+```
+WHO_AM_I: 0xFF
+❌ WHO_AM_I does not match MPU series!
+```
+**วิธีแก้**: ตรวจสอบสาย I2C (SDA=8, SCL=9) และยืนยันแอดเดรส 0x68
+
+### Roll/Pitch ผิดตอนวางราบ
+```
+Roll: -45.2°  Pitch: 12.8°
+```
+**วิธีแก้**: 
+```cpp
+imu.testAllRotationsComplete();  // หาแนวที่ถูกต้อง
+imu.setRotation(ROTATION_CUSTOM_3);  // ใช้แนวที่เหมาะสม
+```
+
+### ESC ไม่ทำงาน (ไม่มีเสียงบี๊บ)
+```
+⚠️ Setting up Thruster ESC...
+(ไม่มีเสียงจาก ESC)
+```
+**วิธีแก้**: 
+- ตรวจสอบสัญญาณ PWM ที่ GPIO 39
+- ตรวจแรงดันแบตเตอรี่ > 11.1V
+- ลอง `rov.setThruster(0)` แล้วค่อยเพิ่มทีละน้อย
+
+### เชื่อมต่อ micro-ROS ไม่ได้
+```
+Agent connection timeout!
+```
+**วิธีแก้**:
+```bash
+# บนคอมพิวเตอร์ เปิด ROS2 agent:
+ros2 run micro_ros_agent micro_ros_agent udp4 --port 8888
+
+# ตรวจสอบเครือข่าย:
+ping 172.20.10.2
+```
+
+### GPS หาสัญญาณไม่เจอ
+```
+SAT: 0 NO SIG
+```
+**วิธีแก้**:
+- ย้ายไปที่แจ้งมองเห็นท้องฟ้า
+- รอ 2-5 นาทีสำหรับ cold start
+- ตรวจสอบสาย: TX→GPIO17, RX→GPIO18
+
+## API Reference
+
+### ฟังก์ชัน IMU
+```cpp
+imu.begin()                          // เริ่มต้นเซนเซอร์
+imu.readSensorData()                 // อ่านข้อมูลดิบ
+imu.calculateOrientation()           // คำนวณ roll/pitch/yaw
+imu.setRotation(ROTATION_MODE)       // ตั้งค่าพิกัด
+imu.zeroOrientation()                // ตั้งศูนย์ที่ท่าปัจจุบัน
+imu.testAllRotationsComplete()       // หาแนวที่ดีที่สุดอัตโนมัติ
+```
+
+### ฟังก์ชัน Actuator
+```cpp
+rov.begin()                          // เริ่มต้นเซอร์โวทั้งหมด
+rov.setServo(num, offset)            // num: 1-4, offset: -10 ถึง 10
+rov.setThruster(power)               // power: 0-100
+rov.setAllServos(offset)             // ตั้งครีบทั้งหมดเท่ากัน
+rov.moveToCenter()                   // กลับจุดกลาง
+rov.stop()                           // หยุดฉุกเฉินมอเตอร์
+rov.update()                         // เรียกใน loop() - จัดการ serial และเคลื่อนที่นุ่มนวล
+```
+
+### ฟังก์ชัน GPS
+```cpp
+initGPS(rx_pin, tx_pin, baud)        // เริ่มต้นโมดูล GPS
+updateGPS()                          // ประมวลผลข้อมูลเข้า
+GPSData data = getGPSData()          // รับตำแหน่งปัจจุบัน
+printGPSData()                       // Debug output
+testGPSConnection()                  // ตรวจสอบสถานะ GPS
+```
+
+### ฟังก์ชันจอแสดงผล
+```cpp
+initDisplay()                        // เริ่มต้น OLED
+displayGPSPage()                     // แสดงข้อมูล GPS
+displayWiFiPage(ssid, wifi, ros)     // แสดงสถานะการเชื่อมต่อ
+switchDisplayPage()                  // สลับหน้าจอ
+showMessage(line1, line2, line3)     // ข้อความกำหนดเอง
+```
+
+### ฟังก์ชัน LED
+```cpp
+initLED()                            // เริ่มต้น RGB LED
+setLED(color)                        // ตั้งสีเฉพาะ
+updateStatusLED(wifi, ros, pub)      // แสดงสถานะอัตโนมัติ
+blinkLED(color, times, duration)     // กระพริบ
+```
+
+## ประสิทธิภาพระบบ
+
+| ตัวชี้วัด | ค่า |
+|-----------|-----|
+| อัตราอัปเดต IMU | 100 Hz |
+| ความหน่วงวงควบคุม | <10 ms |
+| อัตรา Publish ROS | 100 Hz |
+| อัตราอัปเดต GPS | 1 Hz |
+| Refresh จอแสดงผล | 2 Hz |
 
 ## 📅 Project Timeline
 
@@ -936,19 +1191,15 @@ pip install pyserial
 #### 3. Clone and Build Workspace
 
 ```bash
-# Create workspace
-mkdir -p ~/ros2_ws/src
-cd ~/ros2_ws/src
-
 # Clone repository
-git clone https://github.com/yourusername/thrust_vectoring_drone.git
+git clone --branch Project https://github.com/PPHUSIN/FRA502-LAB-6645.git
+cd FRA502-LAB-6645/
 
 # Build workspace
-cd ~/ros2_ws
-colcon build --symlink-install
+colcon build
 
 # Source workspace
-source ~/ros2_ws/install/setup.bash
+source install/setup.bash
 ```
 
 #### 4. Configure Network (Real Hardware Only)
@@ -981,49 +1232,37 @@ source ~/.bashrc
 
 ```bash
 # Terminal 1: Launch Gazebo simulation
-ros2 launch thrust_vectoring_drone gazebo_launch.py
-
-# Terminal 2: Launch RVIZ2
-ros2 launch thrust_vectoring_drone rviz_launch.py
-
-# Terminal 3: Start drone pose node (simulation version)
-ros2 run thrust_vectoring_drone drone_pose_sim.py
-
-# Terminal 4: Start fin sim node
-ros2 run thrust_vectoring_drone fin_sim.py
-
-# Terminal 5: Start teleop (simulation version)
-ros2 run thrust_vectoring_drone teleop_sim.py
-
-# Terminal 6: Monitor topics
-ros2 topic list
-ros2 topic echo /odom
+ros2 launch drone_gazebo simulation_launch.py
 ```
 
-### 🚁 Running Real Hardware Mode
-
-> ⚠️ **หมายเหตุ:** โหมดนี้ยังไม่ได้ทดสอบกับฮาร์ดแวร์จริง
+```bash
+# Terminal 2: Launch Rviz
+ros2 launch drone drone.launch.py
+```
 
 ```bash
-# Terminal 1: Start MicroROS Agent
-ros2 run micro_ros_agent micro_ros_agent udp4 --port 8888
+# Terminal 3: Select Comtrol Mode
+ros2 topic pub /drone/control_mode std_msgs/msg/String "data: 'POSITION'" --once 
+ros2 topic pub /drone/control_mode std_msgs/msg/String "data: 'VELOCITY'" --once 
+```
 
-# Terminal 2: Launch RVIZ2 (real hardware config)
-ros2 launch thrust_vectoring_drone rviz_real_launch.py
+```bash
+# Terminal 4: Setpoint Position
+ros2 topic pub /drone/setpoint geometry_msgs/msg/Twist "linear:
+  x: 1.0
+  y: 1.0
+  z: 2.0
+angular:
+  x: 0.0
+  y: 0.0
+  z: 0.0" --once
+```
 
-# Terminal 3: Start drone pose node (real hardware version)
-ros2 run thrust_vectoring_drone drone_pose.py
-
-# Terminal 4: Start fin angle node
-ros2 run thrust_vectoring_drone fin_angle.py
-
-# Terminal 5: Start teleop (real hardware version)
-ros2 run thrust_vectoring_drone teleop.py
-
-# Terminal 6: Monitor drone
-ros2 topic echo /drone/angle
-ros2 topic echo /fin_angle
-ros2 topic echo /cmd_vel
+```bash
+# Terminal 5: Setpoint Velocity
+ros2 topic pub /drone/velocity_setpoint geometry_msgs/msg/Vector3 "x: 2.0
+y: 1.0
+z: 2.0" --once 
 ```
 
 ### Control Commands (Velocity Setpoint)
@@ -1042,7 +1281,7 @@ Velocity Setpoint (World Frame):
 
 **🚁 Real Hardware Teleop (teleop.py):**
 ```
-Velocity Setpoint (World Frame):
+Velocity Setpoint (Body Drone Frame):
    w : +X (Forward)     speed = 0.1 m/s (ช้ากว่าเพื่อความปลอดภัย)
    s : -X (Backward)
    a : +Y (Left)
