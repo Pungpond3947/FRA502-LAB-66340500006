@@ -1,3 +1,7 @@
+## Architecture
+
+![ALT_TEXT](architecture.png)
+
 ## วิธีใช้งาน 
 
 ### Terminal 1
