@@ -1,6 +1,6 @@
-### วิธีใช้งาน 
+## วิธีใช้งาน 
 
-## Terminal 1
+##3 Terminal 1
 
 ```bash
 sudo apt update
@@ -25,9 +25,9 @@ source install/setup.bash
 ros2 launch Exam1 exam1_bringup.launch.py 
 ```
 
-### Call Services
+## Call Services
 
-## Termanal 2
+### Termanal 2
 
 ```bash
 source install/setup.bash
