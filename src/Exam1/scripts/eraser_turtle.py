@@ -108,6 +108,8 @@ class DummyNode(Node):
         self.kp_d = 0.0
         self.kp_theta = 0.0
 
+        self.have_potal = False
+
         self.create_timer(1.0/self.rates, self.timer_callback)
 
     def shutdown_callback(self, msg):
@@ -146,6 +148,8 @@ class DummyNode(Node):
     def potal_callback(self, msg):
         self.potal_pose[0] = msg.x
         self.potal_pose[1] = msg.y
+
+        self.have_potal = True
 
     def copy_finished_callback(self, msg):
         package_path = get_package_share_directory('Exam1')
@@ -330,9 +334,10 @@ class DummyNode(Node):
                     except Exception as e:
                         self.get_logger().error(f"Failed to spawn {self.name_eraser} in {self.name_teleop}: {e}")
 
-                future = self.spawn_turtle(0.1, 0.1, self.name_eraser, self.name_teleop)
-                future.add_done_callback(spawn_done)
-                self.eraser_spawned_teleop = True
+                if self.have_potal == True:
+                    future = self.spawn_turtle(0.1, 0.1, self.name_eraser, self.name_teleop)
+                    future.add_done_callback(spawn_done)
+                    self.eraser_spawned_teleop = True
 
             if self.paths:
                 while self.path1_count < len(self.paths) and not self.paths[self.path1_count]:
