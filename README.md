@@ -1,3 +1,9 @@
+## Architecture
+
+![rchitecture.png](architecture.png)
+
+![rchitecture.pdf](architecture.pdf)
+
 ## วิธีใช้งาน 
 
 ### Terminal 1
