@@ -1,6 +1,6 @@
 ## วิธีใช้งาน 
 
-##3 Terminal 1
+### Terminal 1
 
 ```bash
 sudo apt update
