@@ -1,4 +1,6 @@
-### วิธีใช้งาน
+## วิธีใช้งาน 
+
+### Terminal 1
 
 ```bash
 sudo apt update
@@ -7,8 +9,8 @@ sudo apt install python3-pynput
 
 ```bash
 # Download the repository to your machine
-git clone https://github.com/fibo-github-classroom/multiverse-mission-pond-ply.git
-cd multiverse-mission-pond-ply/
+git clone --branch multiverse-pond-ply https://github.com/Pungpond3947/FRA502-LAB-66340500006.git
+cd FRA502-LAB-66340500006/
 ```
 
 ```bash
@@ -23,7 +25,13 @@ source install/setup.bash
 ros2 launch Exam1 exam1_bringup.launch.py 
 ```
 
-### Call Services
+## Call Services
+
+### Termanal 2
+
+```bash
+source install/setup.bash
+```
 
 ```bash
 # Set max pizza for teleop turtle
