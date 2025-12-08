@@ -1,6 +1,6 @@
 ## Architecture
 
-![ALT_TEXT](architecture.pdf)
+![](architecture.pdf)
 
 ## วิธีใช้งาน 
 
