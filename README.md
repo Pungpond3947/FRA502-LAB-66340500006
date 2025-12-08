@@ -1,6 +1,6 @@
 ## Architecture
 
-![ALT_TEXT](architecture.png)
+![ALT_TEXT](architecture.pdf)
 
 ## วิธีใช้งาน 
 
