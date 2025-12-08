@@ -155,11 +155,9 @@ class DummyNode(Node):
         package_path = get_package_share_directory('Exam1')
         load_path = os.path.join(package_path, 'pizza_paths.yaml')
 
-        # ถ้า paths โหลดแล้ว ไม่ต้องทำอะไร
         if self.paths:
             return
 
-        # ตรวจสอบไฟล์ว่ามีหรือว่าง
         if not os.path.exists(load_path) or os.path.getsize(load_path) == 0:
             default_data = {
                 "pizza_paths": [
@@ -173,28 +171,25 @@ class DummyNode(Node):
                 yaml.dump(default_data, f)
             self.get_logger().info(f"Created default pizza_paths in {load_path}")
 
-        # โหลด YAML
         try:
             with open(load_path, "r") as f:
                 data = yaml.safe_load(f) or {}
 
             pizza_paths = data.get("pizza_paths", [])
 
-            # ถ้า path มีน้อยกว่า 4 list → เติม [] ให้ครบ
             while len(pizza_paths) < 4:
                 pizza_paths.append([])
 
-            # บังคับให้ทุก element เป็น list
             pizza_paths = [p if isinstance(p, list) else [] for p in pizza_paths]
 
             self.paths = pizza_paths
-            self.state = 1  # เริ่ม state = 1
+            self.state = 1
             self.get_logger().info(f"Pizza paths loaded successfully: {[len(p) for p in self.paths]} points per group")
 
         except Exception as e:
             self.get_logger().error(f"Failed to load pizza_paths: {e}")
             self.paths = [[], [], [], []]
-            self.state = 1  # เริ่ม state=1 แม้ไฟล์มีปัญหา
+            self.state = 1
 
     def eraserteleop_pose_callback(self, msg):
         self.eraserteleop_pose[0] = msg.x
@@ -325,7 +320,15 @@ class DummyNode(Node):
 
     def timer_callback(self):
         # self.get_logger().info(f"state = {self.state}")
+
         if self.state == 1:
+            if (not self.paths or self.path1_count >= len(self.paths)):
+                # ถ้า path โหลดมาแล้วว่างเปล่าทั้งหมดตั้งแต่ต้น หรือ index เกิน ให้ข้าม
+                if not self.paths or (self.paths and all(not p for p in self.paths)):
+                     self.get_logger().warn("No paths or all paths empty, skipping State 1")
+                     self.state = 2
+                     return
+            
             if not self.eraser_spawned_teleop:
                 def spawn_done(fut):
                     try:
@@ -339,10 +342,19 @@ class DummyNode(Node):
                     future.add_done_callback(spawn_done)
                     self.eraser_spawned_teleop = True
 
-            if self.paths:
+            # รอ spawn เสร็จก่อน และมั่นใจว่ามี path
+            if self.eraser_spawned_teleop and self.paths:
                 while self.path1_count < len(self.paths) and not self.paths[self.path1_count]:
                     self.path1_count += 1
                     self.path2_count = 0
+                
+                # เช็คซ้ำว่าหลังจากวน loop แล้ว index ยังอยู่ในขอบเขตไหม
+                if self.path1_count >= len(self.paths):
+                    self.path1_count = 0
+                    self.path2_count = 0
+                    self.state = 2
+                    return
+
                 self.control(self.paths[self.path1_count][self.path2_count][0],self.paths[self.path1_count][self.path2_count][1], self.eraserteleop_pose, self.name_teleop)
 
         elif self.state == 2:
@@ -465,9 +477,18 @@ class DummyNode(Node):
                     self.eraser_killed_Iron = True
         
         elif self.state == 14:
+            # แก้ไข: เพิ่มการเช็ค path ว่างก่อนส่งไป control
             while self.path1_count < len(self.paths) and not self.paths[self.path1_count]:
                 self.path1_count += 1
                 self.path2_count = 0
+            
+            # ถ้าวนแล้วพบว่าว่างหมด (index เกิน) ให้ไป state ถัดไปเลย
+            if self.path1_count >= len(self.paths):
+                self.path1_count = 0
+                self.path2_count = 0
+                self.state = 15
+                return
+
             self.control(self.paths[self.path1_count][self.path2_count][0],self.paths[self.path1_count][self.path2_count][1], self.erasercopy_pose, self.name_copy)
 
         elif self.state == 15:
