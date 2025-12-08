@@ -1,6 +1,8 @@
 ## Architecture
 
-![](architecture.pdf)
+![rchitecture.png](architecture.png)
+
+![rchitecture.pdf](architecture.pdf)
 
 ## วิธีใช้งาน 
 
