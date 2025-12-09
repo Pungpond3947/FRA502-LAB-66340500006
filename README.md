@@ -2,6 +2,12 @@
 
 This project implements a control system for a 3-DOF (Revolute-Revolute-Revolute) Robot Arm using ROS 2. It features Jacobian-based teleoperation, Inverse Kinematics (IK) trajectory planning, workspace visualization, and an automated task scheduler.
 
+## Architecture
+
+![rchitecture.png](LAB4_System_Architecture.png)
+
+![rchitecture.pdf](LAB4_System_Architecture.pdf)
+
 ## Dependencies
 
 Ensure you have the following installed in your ROS 2 environment:
