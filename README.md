@@ -33,7 +33,7 @@ ros2 launch Exam1 exam1_bringup.launch.py
 
 ## Call Services
 
-### Termanal 2
+### Terminal 2
 
 ```bash
 source install/setup.bash
